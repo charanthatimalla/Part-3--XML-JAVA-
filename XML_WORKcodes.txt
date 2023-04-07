@@ -1,0 +1,172 @@
+dom_parser_schema.py
+
+
+from xml.dom import minidom
+from xml.dom.minidom import Node
+from lxml import etree
+
+# parse the XML document
+doc = minidom.parse("person.xml")
+
+# validate against the schema
+schema_doc = minidom.parse("person.xsd")
+schema = etree.XMLSchema(etree.fromstring(schema_doc.toxml()))
+
+if not schema.validate(doc):
+    print("Validation error")
+    for error in schema.error_log:
+        print(error)
+else:
+    print("Validation successful")
+
+# get the person element
+person = doc.getElementsByTagName("person")[0]
+
+# get the name element
+name = person.getElementsByTagName("name")[0]
+
+# print the name value
+print(name.firstChild.nodeValue)
+
+# get the age element
+age = person.getElementsByTagName("age")[0]
+
+# print the age value
+print(age.firstChild.nodeValue)
+
+# get the address element
+address = person.getElementsByTagName("address")[0]
+
+# get the street element
+street = address.getElementsByTagName("street")[0]
+
+# print the street value
+print(street.firstChild.nodeValue)
+
+# get the city element
+city = address.getElementsByTagName("city")[0]
+
+# print the city value
+print(city.firstChild.nodeValue)
+
+# get the state element
+state = address.getElementsByTagName("state")[0]
+
+# print the state value
+print(state.firstChild)
+
+
+
+dom_parser_schema.py
+
+
+import xml.dom.minidom
+import xml.dom
+import xml.sax
+
+def validate(xml_str, schema_file_path):
+    try:
+        schema_doc = xml.dom.minidom.parse(schema_file_path)
+        schema = xml.dom.minidom.DocumentType(schema_doc.documentElement.tagName, '', '')
+        schema.entities = schema_doc.entities
+        schema_notation = schema_doc.notations
+        handler = xml.sax.make_parser()
+        handler.setFeature(xml.sax.handler.feature_namespaces, 1)
+        validator = xml.sax.handler.ContentHandler()
+        handler.setContentHandler(validator)
+        handler.setEntityResolver(xml.sax.handler.EntityResolver())
+        handler.setDTDHandler(xml.sax.handler.DTDHandler())
+        handler.setErrorHandler(xml.sax.handler.ErrorHandler())
+        handler.parse(xml_str)
+        return True
+    except Exception as e:
+        print("Error: {}".format(e))
+        return False
+
+
+patient.dtd
+
+
+
+<!DOCTYPE person [
+    <!ELEMENT person (name, age, address)>
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT age (#PCDATA)>
+    <!ELEMENT address (street, city, state, zip)>
+    <!ELEMENT street (#PCDATA)>
+    <!ELEMENT city (#PCDATA)>
+    <!ELEMENT state (#PCDATA)>
+    <!ELEMENT zip (#PCDATA)>
+]>
+
+
+
+person.xml
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+    <name>John Doe</name>
+    <age>30</age>
+    <address>
+        <street>123 Main St</street>
+        <city>Anytown</city>
+        <state>CA</state>
+        <zip>12345</zip>
+    </address>
+</person>
+
+
+
+person.xsd
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="person">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="age" type="xs:integer"/>
+                <xs:element name="address">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="street" type="xs:string"/>
+                            <xs:element name="city" type="xs:string"/>
+                            <xs:element name="state" type="xs:string"/>
+                            <xs:element name="zip" type="xs:integer"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
+
+
+
+
+xml_creator.py
+
+import xml.etree.ElementTree as ET
+
+# create the root element
+root = ET.Element("students")
+
+# create child elements with attributes and text
+student1 = ET.SubElement(root, "student", {"id": "001"})
+name1 = ET.SubElement(student1, "name")
+name1.text = "Alice"
+age1 = ET.SubElement(student1, "age")
+age1.text = "20"
+
+student2 = ET.SubElement(root, "student", {"id": "002"})
+name2 = ET.SubElement(student2, "name")
+name2.text = "Bob"
+age2 = ET.SubElement(student2, "age")
+age2.text = "22"
+
+# create the tree from the root element and write to file
+tree = ET.ElementTree(root)
+tree.write("students.xml", encoding="UTF-8", xml_declaration=True)
+
